@@ -18,7 +18,7 @@ then
     echo "Veuillez spécifier au moins un traitemnt."
     exit 1
 fi
-fichier=$1
+fichier="$1"
 dos_temp="temp"
 dos_images="images"
 exe_c="prog_c"
@@ -65,21 +65,21 @@ for arg in "$@"; do
    case "$arg" in
    "-d1") 
    echo "Traitement d1 : "
-   sort -n -t';' -k1 $1 | cut -d';' -f1,5,6 >tmp.csv 
+   sort -n -t';' -k1 data_1.csv | cut -d';' -f1,5,6 >tmp.csv 
    awk -F ';' '{count[$3"  "$1]++} END {for (i in count) print count[i],i}' tmp.csv | sort -nr | head -n10 >resultatsd1.txt
    ##gnuplot testd1.gnu
 ;;  
    "-d2")
    echo "Traitement d2 : "
-   awk -F';' 'NR>1 {distance[$6] += $5+0 } END {for (driver in distance) if (distance[driver] > 0) print distance[driver] "," driver}' data.csv > tmp_d2.csv
-sort -nr -t',' -k1 tmp_d2.csv | head -10 > resultats_d2.txt
-   gnuplot traitementd2.gnu
-    ;;
-  
+   echo "Traitement d2 : "
+awk -F';' 'NR>1 {distance[$6] += $5+0} END {for (driver in distance) if (distance[driver] > 0) printf "%.3f %s\n", distance[driver], driver}' data_1.csv > tmp.csv
+sort -nr tmp.csv | head -10 > resultats_d2.txt 
+gnuplot traitementd2.gnu 
+  ;;
    "-l")
    echo "Traitement l : " 
-    sort -n -t';' -k1 data.csv | cut -d';' -f1,5,6 > tmp.csv
-    awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' tmp.csv | sort -n -r -t' ' -k2 | head -n10 > resultats.txt
+    sort -n -t';' -k1 data_1.csv | cut -d';' -f1,5,6 > tmp.csv
+    awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' tmp.csv | sort -n -r -t' ' -k2 | head -n10 > resultats_l.txt 
     gnuplot testl.gnu
     ;;
    "-t") 

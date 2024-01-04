@@ -1,10 +1,9 @@
-set terminal pngcairo enhanced font 'Verdana,12'
-set output 'histogramme_l.png'
-set title "Histogramme des distances par ID"
-set xlabel "ID"
-set ylabel "Distance"
-# Style de l'histogramme
-set style data histograms
+set terminal pngcairo enhanced font "arial,10" size 800,600 
+set output 'histogramme_l.png' 
 set style fill solid
-set boxwidth 0.5
-plot "resultats.txt" using 2:xtic(1) with histogram title "Distances"
+set boxwidth 0.8 relative
+set yrange [0:*]
+set xlabel "ROUTE ID"
+set ylabel "DISTANCE (Km)"
+set title "Option -l "
+plot 'resultats_l.txt' using 2:xticlabels(1) with boxes title "Nombre de trajets" 
