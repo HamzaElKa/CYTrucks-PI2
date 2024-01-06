@@ -67,13 +67,13 @@ for arg in "$@"; do
    echo "Traitement d1 : "
    sort -n -t';' -k1 data_1.csv | cut -d';' -f1,5,6 >tmp.csv 
    awk -F ';' '{count[$3"  "$1]++} END {for (i in count) print count[i],i}' tmp.csv | sort -nr | head -n10 >resultatsd1.txt
-   ##gnuplot testd1.gnu
+   #gnuplot testd1.gnu
 ;;  
-   "-d2")
+"-d2")
 echo "Traitement d2 : "
 start=$(date +%s)
-awk -F';' 'NR>1 {distance[$6] += $5+0} END {for (driver in distance) if (distance[driver] > 0) printf "%.3f %s\n", distance[driver], driver}' data_1.csv > tmp.csv
-sort -nr tmp.csv | head -10 > resultats_d2.txt 
+awk -F';' 'NR>1 {distance[$6] += $5+0} END {for (driver in distance) if (distance[driver] > 0) printf "%.3f %s\n", distance[driver], driver}' data_1.csv > temp/tmp_d2.csv
+sort -nr temp/tmp_d2.csv | head -10 > temp/resultats_d2.txt 
 gnuplot traitementd2.gnu 
 end=$(date +%s) 
 time=$(( end - start ))
@@ -83,8 +83,8 @@ time=$(( end - start ))
    "-l")
    echo "Traitement l : "
    start=$(date +%s)  
-    sort -n -t';' -k1 data_1.csv | cut -d';' -f1,5,6 > tmp.csv
-    awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' tmp.csv | sort -n -r -t' ' -k2 | head -n10 > resultats_l.txt 
+    sort -n -t';' -k1 data_1.csv | cut -d';' -f1,5,6 > temp/tmp_l.csv
+    awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' temp/tmp_l.csv | sort -n -r -t' ' -k2 | head -n10 > temp/resultats_l.txt 
     gnuplot testl.gnu
     end=$(date +%s) 
     time=$(( end - start ))

@@ -6,4 +6,4 @@ set yrange [0:*]
 set xlabel "ROUTE ID"
 set ylabel "DISTANCE (Km)"
 set title "Option -l "
-plot 'resultats_l.txt' using 2:xticlabels(1) with boxes title "Nombre de trajets" 
+plot 'temp/resultats_l.txt' using 2:xticlabels(1) with boxes title "Nombre de trajets" 
