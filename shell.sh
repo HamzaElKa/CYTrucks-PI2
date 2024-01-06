@@ -70,17 +70,26 @@ for arg in "$@"; do
    ##gnuplot testd1.gnu
 ;;  
    "-d2")
-   echo "Traitement d2 : "
-   echo "Traitement d2 : "
+echo "Traitement d2 : "
+start=$(date +%s)
 awk -F';' 'NR>1 {distance[$6] += $5+0} END {for (driver in distance) if (distance[driver] > 0) printf "%.3f %s\n", distance[driver], driver}' data_1.csv > tmp.csv
 sort -nr tmp.csv | head -10 > resultats_d2.txt 
 gnuplot traitementd2.gnu 
+end=$(date +%s) 
+time=$(( end - start ))
+    echo "Durée d'exec : ${time} secondes" 
+    echo " "
   ;;
    "-l")
-   echo "Traitement l : " 
+   echo "Traitement l : "
+   start=$(date +%s)  
     sort -n -t';' -k1 data_1.csv | cut -d';' -f1,5,6 > tmp.csv
     awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' tmp.csv | sort -n -r -t' ' -k2 | head -n10 > resultats_l.txt 
     gnuplot testl.gnu
+    end=$(date +%s) 
+    time=$(( end - start ))
+    echo "Durée d'exec : ${time} secondes" 
+    echo " "
     ;;
    "-t") 
    echo "Traitement t : 

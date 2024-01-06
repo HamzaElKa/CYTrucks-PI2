@@ -1,5 +1,5 @@
 set terminal pngcairo enhanced font 'Verdana,12'
-set output 'histogramme_d1.png'
+set output 'images/histogramme_d1.png'
 set title 'Nombre de trajets par conducteur'
 set xlabel 'Nombre de trajets'
 set ylabel 'Conducteurs'
