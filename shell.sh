@@ -65,10 +65,13 @@ for arg in "$@"; do
    case "$arg" in
    "-d1") 
    echo "Traitement d1 : "
-   sort -n -t';' -k1 data_1.csv | cut -d';' -f1,5,6 >tmp.csv 
-   awk -F ';' '{count[$3"  "$1]++} END {for (i in count) print count[i],i}' tmp.csv | sort -nr | head -n10 >resultatsd1.txt
-   #gnuplot testd1.gnu
-;;  
+   start=$(date +%s)
+cut -d';' -f1,6 data_1.csv | sort -t';' -k2 | uniq | cut -d ';' -f2 | uniq -c | sort -nr | head -n10 > temp/resultats_d1.txt
+end=$(date +%s) 
+time=$(( end - start ))
+    echo "Durée d'exec : ${time} secondes" 
+    echo " "
+    ;;
 "-d2")
 echo "Traitement d2 : "
 start=$(date +%s)
