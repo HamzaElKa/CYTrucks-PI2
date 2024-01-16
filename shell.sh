@@ -1,7 +1,18 @@
 #!/bin/bash
 
-echo "Bonjour sur votre programme CY-Trucks"
-
+echo "
+Bienvenue à
+           _________     __________
+          /  ______/    |___    ___|
+         /  /               |  |
+        /  /        ____    |  |
+       /  /        |____|   |  |
+      /  /______            |  |
+     /_________/            |__|    
+		
+		    CY-TRUCKS
+		2023/2024 CY-TECH
+" 
 if [ $# -lt 1 ] # si pas d'argument
 then
     echo "pas le nbr d'argument"
@@ -51,7 +62,15 @@ shift
 option_h=0
 for arg in "$@"; do
     if [ "$arg" = "-h" ]; then
-        echo "Affichage de l'aide"
+        echo "Options de traitements : "
+        echo "-d1 : Les 10 conducteurs avec le plus de trajets."
+        echo "-dr1 : Les 10 conducteurs avec le moins de trajets."
+        echo "-d2 : Les 10 conducteurs et la plus grande distance parcourue par chacun."
+        echo "-dr2 : Les 10 conducteurs et la plus petite distance parcourue par chacun."
+        echo "-l : Les 10 trajets les plus longs."
+        echo "-t : Les 10 villes les plus traversées."
+        echo "-s : Statistiques sur les étapes."
+        echo "-h : Ignorer toutes les autres options et afficher ce menu."
         option_h=1
         break 
     fi
@@ -72,6 +91,15 @@ time=$(( end - start ))
     echo "Durée d'exec : ${time} secondes" 
     echo " "
     ;;
+    "-dr1")
+    echo "Traitement dr1 : "
+    start=$(date +%s)
+cut -d';' -f1,6 data_1.csv | sort -t';' -k2 | uniq | cut -d ';' -f2 | uniq -c | sort -nr | tail -n10 > temp/resultats_d1.txt
+end=$(date +%s) 
+time=$(( end - start ))
+    echo "Durée d'exec : ${time} secondes" 
+    echo " "
+    ;;
 "-d2")
 echo "Traitement d2 : "
 start=$(date +%s)
@@ -86,9 +114,9 @@ time=$(( end - start ))
    "-l")
    echo "Traitement l : "
    start=$(date +%s)  
-    sort -n -t';' -k1 data_1.csv | cut -d';' -f1,5,6 > temp/tmp_l.csv
-    awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' temp/tmp_l.csv | sort -n -r -t' ' -k2 | head -n10 > temp/resultats_l.txt 
-    gnuplot testl.gnu
+sort -n -t';' -k1 data_1.csv | cut -d';' -f1,5,6 > temp/tmp_l.csv
+awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' temp/tmp_l.csv | sort -n -r -t' ' -k2 | head -n10 | sort -n -r -k1,1 > temp/resultats_l.txt
+gnuplot testl.gnu
     end=$(date +%s) 
     time=$(( end - start ))
     echo "Durée d'exec : ${time} secondes" 

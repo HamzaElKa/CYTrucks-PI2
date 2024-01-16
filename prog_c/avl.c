@@ -132,4 +132,40 @@ pivot->equilibre=min(eq_a-2,eq_a+eq_p-2,eq_p-1);
 a=pivot;
 return a;
 }
-
+parbre rotationdroite(parbre a){
+parbre pivot=malloc(sizeof(arbre));
+int eq_a=0;
+int eq_p=0;
+pivot=a->fg;
+a->fg=pivot->fd;
+pivot->fd=a;
+eq_a=a->equilibre;
+eq_p=pivot->equilibre;
+a->equilibre=eq_a-min(eq_p,0)+1;
+pivot->equilibre=max(eq_a+2,eq_a+eq_p+2,eq_p+1);
+a=pivot;
+return a;
+}
+parbre doublerotationgauche(parbre a){
+a->fd=rotationdroite(a->fd);
+return rotationgauche(a);
+}
+parbre doublerotationdroite(parbre a){
+a->fd=rotationgauche(a->fd);
+return rotationdroite(a);
+}
+parbre equilibrerAVL(parbre a){
+if(a->equilibre>=2){
+if(a->fd->equilibre>=0){
+return roationgauche(a);
+}else{
+return doublerotationgauche(a);
+}}
+else if(a->equilibre<=-2){
+if(a->fg->equilibre<=0){
+return rotatiodroite(a);
+}else{
+return doublerotationdroite(a);
+}}
+return a;
+}
