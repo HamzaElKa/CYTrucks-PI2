@@ -1,5 +1,4 @@
 #!/bin/bash
-
 echo "
 Bienvenue à
            _________     __________
@@ -87,9 +86,24 @@ for arg in "$@"; do
    echo "Traitement d1 : "
    echo "Progrès: [####################] (0%)"
    start=$(date +%s)
-cut -d';' -f1,6 data_1.csv | sort -t';' -k2 | uniq | cut -d ';' -f2 | uniq -c | sort -nr | head -n10 | awk '{print $2"; "$1}' > ./temp/resultats_d1.csv
+cut -d';' -f1,6 $fichier | sort -t';' -k2 | uniq | cut -d ';' -f2 | uniq -c | sort -nr | head -n10 | awk '{print $2"; "$1}' > ./temp/resultats_d1.csv
 echo "Progrès: [####################] (33%)"
-gnuplot traitementd1.gnu
+gnuplot << EOF
+set datafile separator ';'
+set terminal png size 800,600
+set output 'temp/histogramme_d1.png'
+set style data histograms
+set style histogram rowstacked
+set style fill solid border 1.0 -1
+set ytics nomirror
+set ylabel 'Nombre de trajets'
+set xlabel 'Nom du Conducteur'
+set xtics nomirror rotate by -270
+set ytics nomirror rotate by 90
+set boxwidth 0.5
+set title "Option -d1 : Nom=f(Nbr trajets)" 
+plot 'temp/resultats_d1.csv' using 2:xtic(1) notitle 
+EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_d1.png images/histogramme_d1.png
 echo "Progrès: [####################] (100%)"
@@ -102,9 +116,23 @@ time=$(( end - start ))
     echo "Traitement dr1 : "
     echo "Progrès: [####################] (0%)"
     start=$(date +%s)
-cut -d';' -f1,6 data_1.csv | sort -t';' -k2 | uniq | cut -d ';' -f2 | uniq -c | sort -nr | tail -n10 | awk '{print $2"; "$1}' > ./temp/resultats_dr1.csv
+cut -d';' -f1,6 $fichier | sort -t';' -k2 | uniq | cut -d ';' -f2 | uniq -c | sort -nr | tail -n11 | head -10 | awk '{print $2"; "$1}' > ./temp/resultats_dr1.csv
 echo "Progrès: [####################] (33%)"
-gnuplot traitementdr1.gnu
+gnuplot << EOF
+set datafile separator ';'
+set terminal png size 800,600
+set output 'temp/histogramme_dr1.png'
+set style data histograms
+set style histogram rowstacked
+set style fill solid border 1.0 -1
+set ytics nomirror
+set ylabel 'Nombre de trajets'
+set xlabel 'Nom du Conducteur'
+set xtics nomirror rotate by -270
+set ytics nomirror rotate by 90
+set boxwidth 0.5
+plot 'temp/resultats_dr1.csv' using 2:xtic(1) notitle 
+EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_dr1.png images/histogramme_dr1.png
 echo "Progrès: [####################] (100%)"
@@ -117,10 +145,24 @@ time=$(( end - start ))
 echo "Traitement d2 : "
 echo "Progrès: [####################] (0%)"
 start=$(date +%s)
-awk -F';' 'NR>1 {distance[$6] += $5+0} END {for (driver in distance) if (distance[driver] > 0) printf "%.3f %s\n", distance[driver], driver}' data_1.csv > temp/tmp_d2.csv
+awk -F';' 'NR>1 {distance[$6] += $5+0} END {for (driver in distance) if (distance[driver] > 0) printf "%.3f %s\n", distance[driver], driver}' $fichier > temp/tmp_d2.csv
 sort -nr temp/tmp_d2.csv | head -10 | awk '{print $2"; "$1}' > ./temp/resultats_d2.csv 
 echo "Progrès: [####################] (33%)"
-gnuplot traitementd2.gnu 
+gnuplot << EOF
+set datafile separator ';' 
+set terminal png size 800,1024
+set output 'temp/histogramme_d2.png'
+set style data histograms
+set style histogram rowstacked
+set style fill solid border 1.0 -1
+set ytics nomirror
+set ylabel 'Distance totale'
+set xlabel 'Nom du Conducteur'
+set xtics nomirror rotate by -270
+set ytics nomirror rotate by 90
+set boxwidth 0.5
+plot 'temp/resultats_d2.csv' using 2:xtic(1) notitle
+EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_d2.png images/histogramme_d2.png
 end=$(date +%s) 
@@ -133,10 +175,24 @@ echo "Progrès: [####################] (100%)"
 echo "Traitement dr2 : "
 echo "Progrès: [####################] (0%)"
 start=$(date +%s)
-awk -F';' 'NR>1 {distance[$6] += $5+0} END {for (driver in distance) if (distance[driver] > 0) printf "%.3f %s\n", distance[driver], driver}' data_1.csv > temp/tmp_dr2.csv
-sort -nr temp/tmp_dr2.csv | tail -10 | awk '{print $2"; "$1}' > ./temp/resultats_dr2.csv 
+awk -F';' 'NR>1 {distance[$6] += $5+0} END {for (driver in distance) if (distance[driver] > 0) printf "%.3f %s\n", distance[driver], driver}' $fichier > temp/tmp_dr2.csv
+sort -nr temp/tmp_dr2.csv | tail -11 | head -10 | awk '{print $2"; "$1}' > ./temp/resultats_dr2.csv 
 echo "Progrès: [####################] (33%)"
-gnuplot traitementdr2.gnu 
+gnuplot << EOF 
+set datafile separator ';' 
+set terminal png size 800,1024
+set output 'temp/histogramme_dr2.png'
+set style data histograms
+set style histogram rowstacked
+set style fill solid border 1.0 -1
+set ytics nomirror
+set ylabel 'Distance totale'
+set xlabel 'Nom du Conducteur'
+set xtics nomirror rotate by -270
+set ytics nomirror rotate by 90
+set boxwidth 0.5
+plot 'temp/resultats_dr2.csv' using 2:xtic(1) notitle
+EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_dr2.png images/histogramme_dr2.png
 echo "Progrès: [####################] (100%)"
@@ -149,11 +205,21 @@ time=$(( end - start ))
    echo "Traitement l : "
    echo "Progrès: [####################] (0%)"
    start=$(date +%s)  
-sort -n -t';' -k1 data_1.csv | cut -d';' -f1,5,6 > temp/tmp_l.csv
+sort -n -t';' -k1 $fichier | cut -d';' -f1,5,6 > temp/tmp_l.csv
 echo "Progrès: [####################] (33%)"
 awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' temp/tmp_l.csv | sort -n -r -t' ' -k2 | head -n10 | sort -n -r -k1,1 > temp/resultats_l.txt
 echo "Progrès: [####################] (66%)"
-gnuplot traitementl.gnu
+gnuplot << EOF
+set terminal pngcairo enhanced font "arial,10" size 800,600 
+set output 'images/histogramme_l.png'
+set style fill solid
+set boxwidth 0.8 relative
+set yrange [0:*]
+set xlabel "ID Route"
+set ylabel "Distance"
+set title "Option -l : ID Route = f(Distance)"
+plot 'temp/resultats_l.txt' using 2:xticlabels(1) with boxes title "Nombre de trajets" 
+EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
     time=$(( end - start ))
@@ -164,11 +230,21 @@ echo "Progrès: [####################] (100%)"
    echo "Traitement rl : "
    echo "Progrès: [####################] (0%)"
    start=$(date +%s)  
-sort -n -t';' -k1 data_1.csv | cut -d';' -f1,5,6 > temp/tmp_rl.csv
+sort -n -t';' -k1 $fichier | cut -d';' -f1,5,6 > temp/tmp_rl.csv
 echo "Progrès: [####################] (33%)"
-awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' temp/tmp_rl.csv | sort -n -r -t' ' -k2 | tail -n10 | sort -n -r -k1,1 > temp/resultats_rl.txt
+awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' temp/tmp_rl.csv | sort -n -r -t' ' -k2 | tail -n11 | head -10 | sort -n -r -k1,1 > temp/resultats_rl.txt
 echo "Progrès: [####################] (66%)"
-gnuplot traitementrl.gnu
+gnuplot << EOF
+set terminal pngcairo enhanced font "arial,10" size 800,600 
+set output 'images/histogramme_rl.png'
+set style fill solid
+set boxwidth 0.8 relative
+set yrange [0:*]
+set xlabel "ID Route"
+set ylabel "Distance"
+set title "Option -rl : ID Route = f(Distance)"
+plot 'temp/resultats_rl.txt' using 2:xticlabels(1) with boxes title "Nombre de trajets" 
+EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
     time=$(( end - start ))
