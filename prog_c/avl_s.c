@@ -25,6 +25,18 @@ float max;
 float min;
 float moy;
 }trajetf;
+int max2(int a, int b) {
+    return (a > b) ? a : b;
+}
+int max3(int a, int b, int c) {
+    return max2(max2(a,b),c);
+}
+int min2(int a, int b) {
+    return (a < b) ? a : b;
+}
+int min3(int a, int b, int c) {
+    return min2(min2(a,b),c);
+}
 parbre creerarbre(trajet d)
 {
     arbre *nouveau = malloc(sizeof(arbre));
@@ -111,45 +123,19 @@ return rotationdroite(a);
 }
 
 parbre equilibrerAVL(parbre a){
-if(a->equilibre>=2){
-if(a->fd->equilibre>=0){
-return roationgauche(a);
+if(a->eq>=2){
+if(a->fd->eq>=0){
+return rotationgauche(a);
 }else{
 return doublerotationgauche(a);
 }}
-else if(a->equilibre<=-2){
-if(a->fg->equilibre<=0){
-return rotatiodroite(a);
+else if(a->eq<=-2){
+if(a->fg->eq<=0){
+return rotationdroite(a);
 }else{
 return doublerotationdroite(a);
 }}
 return a;
-}
-int max2(int a, int b) {
-    return (a > b) ? a : b;
-}
-int max3(int a, int b, int c) {
-    int max = a;
-    if (b > max) {
-        max = b;
-    }
-    if (c > max) {
-        max = c;
-    }
-    return max;
-}
-int min2(int a, int b) {
-    return (a < b) ? a : b;
-}
-int min3(int a, int b, int c) {
-    int min = a;
-    if (b < min) {
-        min = b;
-    }
-    if (c < min) {
-        min = c;
-    }
-    return min;
 }
 void postfixe(parbre a, trajetf* tableau, int* i) 
 {
@@ -159,10 +145,10 @@ void postfixe(parbre a, trajetf* tableau, int* i)
   }
   postfixe(a->fd,tableau,i);
   postfixe(a->fg,tableau,i);
-  tableau[*i].id= node->id;
-  tableau[*i].max = node->max;
-  tableau[*i].min = node->min;
-  tableau[*i].moy = (node->max - node->min)/2;
+  tableau[*i].id= a->id;
+  tableau[*i].max = a->max;
+  tableau[*i].min = a->min;
+  tableau[*i].moy = (a->max+a->min)/2;
   (*i)++;
 }
 void traitement_s(char *fichier){
@@ -172,49 +158,39 @@ void traitement_s(char *fichier){
     perror("ERREUR : impossible d'ouvrir le fichier csv");
     exit(1);
   }
+  int ligne_taille_max=1024;
   char ligne[1024];
   fgets(ligne, ligne_taille_max, file);
   trajet courant;
   int *h = 0;
-  arbre *nouveau=malloc(sizeof(arbre));
+  arbre *nouveau=NULL;
   while (fgets(ligne, ligne_taille_max, file) != NULL)
     {
-      sscanf(ligne, "%d;%*[^;];%*[^;];%*[^;];%f;%*[^;]", courant.id, courant.distance);
-      node = insertionAVL(nouveau, courant, h); 
+sscanf(ligne, "%d;%*[^;];%*[^;];%*[^;];%f;%*[^;]", &courant.id, &courant.distance);
+nouveau = insertionAVL(nouveau, courant,h); 
 nouveau = equilibrerAVL(nouveau);
     }
-
   fclose(file);
   trajetf* tableau[300];
   int i = 0;
-  postfixe(nouveau,tableau,i);
+  postfixe(nouveau,tableau,&i);
   free(nouveau);
   FILE* fichier_temp_s;
-  fichier_temp_s = fopen("temp/data_s.txt", "w");
-    if (fichier_temp == NULL)
+  fichier_temp_s = fopen("../temp/data_s.txt", "w");
+    if (fichier_temp_s == NULL)
     {
       perror("ERREUR : impossible d'ouvrir le fichier csv");
       exit(2);
     }
-    for(int y=0; y<=i; y++)
+    for(int y=0; y < i; y++)
       {
         fprintf(fichier_temp_s, "%d;%f;%f;%f", tableau[y]->id, tableau[y]->min, tableau[y]->max, tableau[y]->moy);
       }
+    fflush(fichier_temp_s);
     fclose(fichier_temp_s);
 }
 int main(int argc, char *argv[]) {
   char *chemin_csv = argv[1]; 
-  for(i; i<argc; i++)      
-  {
-    if(strcmp(argv[i], "-t") == 0)
-    {
-      traitement_t(chemin_csv);
-    }
-
-    if(strcmp(argv[i], "-s") == 0)
-    {
-      traitement_s(chemin_csv);
-    }
-  }
+ traitement_s(chemin_csv);
 return 0;
 }
