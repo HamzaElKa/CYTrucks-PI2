@@ -48,7 +48,8 @@ else
 fi
 if [ ! -e "exe_c" ]; then
     echo "L'executable C n'existe pas. Compilation en cours..."
-    ##gcc
+gcc prog_c/avl_s.c -o mon_programme
+
     if [ $? -eq 0 ]; then
         echo "Compilation réussie. "
     else 
@@ -253,7 +254,8 @@ echo "Progrès: [####################] (100%)"
     ;;
    "-t") 
    echo "Traitement t : 
-   ";;
+   "
+   ;;
    "-s") 
    echo "Traitement s : 
    ";;
