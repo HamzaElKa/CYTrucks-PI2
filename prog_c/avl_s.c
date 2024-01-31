@@ -11,7 +11,9 @@ typedef struct arbre
   struct arbre *fd;
   int eq;
 }arbre;
+
 typedef struct arbre *parbre;
+
 typedef struct 
 {
   int id;
@@ -25,6 +27,7 @@ float max;
 float min;
 float moy;
 }trajetf;
+
 int max2(int a, int b) {
     return (a > b) ? a : b;
 }
@@ -37,7 +40,7 @@ int min2(int a, int b) {
 int min3(int a, int b, int c) {
     return min2(min2(a,b),c);
 }
-parbre creerarbre(trajet d)
+parbre creerarbre(trajet* d)
 {
     arbre *nouveau = malloc(sizeof(arbre));
     if (nouveau == NULL)
@@ -45,34 +48,34 @@ parbre creerarbre(trajet d)
         printf("Erreur d'allocation.\n");
         exit(1);
     }
-    nouveau->id=d.id;
-    nouveau->max=0;
-    nouveau->min=0;
+    nouveau->id=d->id;
+    nouveau->max=d->distance;
+    nouveau->min=d->distance;
     nouveau->fg = NULL;
     nouveau->fd = NULL;
     nouveau->eq=0;
     return nouveau;
 }
-parbre insertionAVL(parbre a, trajet d, int *h)
+parbre insertionAVL(parbre a, trajet* d, int *h)
 {
 if(a==NULL){
 *h=1;
 return creerarbre(d);
 }
-else if(d.id < a->id){
+else if(d->id < a->id){
 a->fg=insertionAVL(a->fg,d,h);
 *h=-*h;
 }
-else if(d.id > a->id){
+else if(d->id > a->id){
 a->fd=insertionAVL(a->fd,d,h);
 }
 else{
 *h=0;
-if(d.distance > a->max){
-a->max=d.distance;
+if(d->distance > a->max){
+a->max=d->distance;
 }
-if(d.distance < a->min){
-a->min=d.distance;
+if(d->distance < a->min){
+a->min=d->distance;
 }}
 if(*h !=0){
 a->eq=a->eq+*h;
@@ -148,10 +151,10 @@ void postfixe(parbre a, trajetf* tableau, int* i)
   tableau[*i].id= a->id;
   tableau[*i].max = a->max;
   tableau[*i].min = a->min;
-  tableau[*i].moy = (a->max+a->min)/2;
+  tableau[*i].moy = (a->max-a->min)/2;
   (*i)++;
 }
-void traitement_s(char *fichier){
+/*void traitement_s(char *fichier){
   FILE* file = fopen(fichier, "r");
   if (file == NULL)
   {
@@ -161,36 +164,103 @@ void traitement_s(char *fichier){
   int ligne_taille_max=1024;
   char ligne[1024];
   fgets(ligne, ligne_taille_max, file);
-  trajet courant;
-  int *h = 0;
+  trajet* courant=malloc(sizeof(trajet));
+  int *h=malloc(sizeof(int));
+  *h=0;
   arbre *nouveau=NULL;
-  while (fgets(ligne, ligne_taille_max, file) != NULL)
-    {
-sscanf(ligne, "%d;%*[^;];%*[^;];%*[^;];%f;%*[^;]", &courant.id, &courant.distance);
+  /*while (fgets(ligne, ligne_taille_max, file )!= NULL)
+  {
+printf("Before sscanf: %s\n", ligne);
+sscanf(ligne, "%d;%*[^;];%*[^;];%*[^;];%f;%*[^;]", &courant->id, &courant->distance);
+printf("After sscanf: %d, %f\n", courant->id, courant->distance);
 nouveau = insertionAVL(nouveau, courant,h); 
 nouveau = equilibrerAVL(nouveau);
     }
+    if (courant == NULL) {
+    printf("Error: courant is NULL\n");
+    exit(EXIT_FAILURE);
+}
+printf("Before sscanf: %s\n", ligne);
+if (sscanf(ligne, "%d;%*[^;];%*[^;];%*[^;];%f;%*[^;]", &courant->id, &courant->distance) != 2) {
+    printf("Error: sscanf failed\n");
+    exit(1);
+}
+printf("After sscanf: %d, %f\n", courant->id, courant->distance);
+printf("N\n");
   fclose(file);
-  trajetf* tableau[300];
-  int i = 0;
-  postfixe(nouveau,tableau,&i);
+  trajetf tableau[50];
+  int *i=malloc(sizeof(int));
+  *i=0;
+  postfixe(nouveau,tableau,i);
   free(nouveau);
   FILE* fichier_temp_s;
-  fichier_temp_s = fopen("../temp/data_s.txt", "w");
+  fichier_temp_s = fopen("./temp/data_s.txt", "w");
     if (fichier_temp_s == NULL)
     {
       perror("ERREUR : impossible d'ouvrir le fichier csv");
       exit(2);
     }
-    for(int y=0; y < i; y++)
+    for(int y=0; y < 50; y++)
       {
-        fprintf(fichier_temp_s, "%d;%f;%f;%f", tableau[y]->id, tableau[y]->min, tableau[y]->max, tableau[y]->moy);
+        fprintf(fichier_temp_s, "%d;%f;%f;%f", tableau[y].id, tableau[y].min, tableau[y].max, tableau[y].moy);
       }
-    fflush(fichier_temp_s);
     fclose(fichier_temp_s);
+}*/
+void traitement_s(char *fichier) {
+  FILE *file = fopen(fichier, "r");
+  if (file == NULL) {
+    perror("ERREUR : impossible d'ouvrir le fichier csv");
+    exit(1);
+  }
+
+  int ligne_taille_max = 1024;
+  char ligne[1024];
+  
+  // Read and discard the first line (header)
+  if (fgets(ligne, ligne_taille_max, file) == NULL) {
+    printf("Error: Failed to read the header line\n");
+    exit(1);
+  }
+
+  trajet *courant = malloc(sizeof(trajet));
+  int *h = malloc(sizeof(int));
+  *h = 0;
+  arbre *nouveau = NULL;
+
+  while (fgets(ligne, ligne_taille_max, file) != NULL) {
+    printf("Before sscanf: %s\n", ligne);
+    if (sscanf(ligne, "%d;%*[^;];%*[^;];%*[^;];%f;%*[^;]", &courant->id, &courant->distance) != 2) {
+      printf("Error: sscanf failed\n");
+      exit(1);
+    }
+    printf("After sscanf: %d, %f\n", courant->id, courant->distance);
+
+    nouveau = insertionAVL(nouveau, courant, h);
+    nouveau = equilibrerAVL(nouveau);
+  }
+
+  fclose(file);
+
+  trajetf tableau[50];
+  int *i = malloc(sizeof(int));
+  *i = 0;
+  postfixe(nouveau, tableau, i);
+  free(nouveau);
+
+  FILE *fichier_temp_s = fopen("data_s.txt", "w");
+  if (fichier_temp_s == NULL) {
+    perror("ERREUR : impossible d'ouvrir le fichier temp_s");
+    exit(EXIT_FAILURE);
+  }
+
+  for (int y = 0; y < 50; y++) {
+    fprintf(fichier_temp_s, "%d;%f;%f;%f\n", tableau[y].id, tableau[y].min, tableau[y].max, tableau[y].moy);
+  }
+
+  fclose(fichier_temp_s);
 }
-int main(int argc, char *argv[]) {
-  char *chemin_csv = argv[1]; 
- traitement_s(chemin_csv);
+
+int main() {
+ traitement_s("data_2.csv");
 return 0;
 }
