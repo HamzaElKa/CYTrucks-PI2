@@ -1,27 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "avl_s.h"
 
-typedef struct arbre
-{
-  int id;
-  float max;
-  float min;
-  float moy;
-  struct arbre *fg;
-  struct arbre *fd;
-  int eq;
-}arbre;
-
-typedef struct arbre *parbre;
-
-typedef struct
-{
-int id;
-float max;
-float min;
-float moy;
-}trajetf;
 
 int max2(int a, int b) {
     return (a > b) ? a : b;
@@ -47,6 +25,7 @@ parbre creerarbre(trajetf* d)
     nouveau->max=d->max;
     nouveau->min=d->min;
     nouveau->moy=d->moy;
+    nouveau->dif=d->dif;
     nouveau->fg = NULL;
     nouveau->fd = NULL;
     nouveau->eq=0;
@@ -54,15 +33,18 @@ parbre creerarbre(trajetf* d)
 }
 parbre insertionAVL(parbre a, trajetf* d, int *h)
 {
+if (d==NULL){
+return a;
+}
     if (a == NULL) {
         *h = 1;
         return creerarbre(d);
-    } else if (d->moy < a->moy) {
+    } else if (d->dif < a->dif) {
         a->fg = insertionAVL(a->fg, d, h);
         *h = -*h;
-    } else if (d->moy > a->moy) {
+    } else if (d->dif > a->dif) {
         a->fd = insertionAVL(a->fd, d, h);
-    } else if (d->moy==a->moy) {
+    } else if (d->dif==a->dif) {
         *h = 0;
         if (d->max > a->max) {
             a->max = d->max;
@@ -82,6 +64,9 @@ parbre insertionAVL(parbre a, trajetf* d, int *h)
     return a;
 }
 parbre rotationgauche(parbre a){
+if(a==NULL){
+return a;
+}
 parbre pivot=malloc(sizeof(arbre));
 int eq_a=0;
 int eq_p=0;
@@ -96,6 +81,9 @@ a=pivot;
 return a;
 }
 parbre rotationdroite(parbre a){
+if(a==NULL){
+return a;
+}
 parbre pivot=malloc(sizeof(arbre));
 int eq_a=0;
 int eq_p=0;
@@ -111,16 +99,24 @@ return a;
 }
 
 parbre doublerotationgauche(parbre a){
+if(a==NULL){
+return a;
+}
 a->fd=rotationdroite(a->fd);
 return rotationgauche(a);
 }
 
 parbre doublerotationdroite(parbre a){
+if(a==NULL){
+return a;
+}
 a->fg=rotationgauche(a->fg);
 return rotationdroite(a);
 }
-
 parbre equilibrerAVL(parbre a){
+if(a==NULL){
+return a;
+}
 if(a->eq>=2){
 if(a->fd->eq>=0){
 return rotationgauche(a);
@@ -135,18 +131,14 @@ return doublerotationdroite(a);
 }}
 return a;
 }
-void infixeInverse(parbre a, trajetf* tableau, int* i) 
+void infixeInverse(parbre a, FILE* fichier_temp_s) 
 {
-    if (a == NULL) {
+    if (a == NULL ) {
         return;
     }
-    infixeInverse(a->fd, tableau, i);
-    tableau[*i].id = a->id;
-    tableau[*i].max = a->max;
-    tableau[*i].min = a->min;
-    tableau[*i].moy = a->moy;
-    (*i)++;
-    infixeInverse(a->fg, tableau, i);
+    infixeInverse(a->fd,fichier_temp_s);
+    fprintf(fichier_temp_s,"%d;%f;%f;%f;%f\n",a->id,a->min,a->moy,a->max,a->dif);
+    infixeInverse(a->fg, fichier_temp_s);
 }
 void traitement_s(char *fichier) {
   FILE *file = fopen(fichier, "r");
@@ -167,25 +159,17 @@ void traitement_s(char *fichier) {
   arbre *nouveau = NULL;
 
   while (fgets(ligne, ligne_taille_max, file) != NULL) {
-    sscanf(ligne, "%d;%f;%f;%f", &courant->id,&courant->moy,&courant->min, &courant->max);
-    printf("%d,%f,%f,%f\n",courant->id,courant->moy,courant->min,courant->max);
+    sscanf(ligne, "%d;%f;%f;%f;%f", &courant->id,&courant->min,&courant->moy, &courant->max, &courant->dif);
     nouveau = insertionAVL(nouveau, courant, h);
     nouveau = equilibrerAVL(nouveau);
   }
   fclose(file);
-  trajetf tableau[50];
-  int *i = malloc(sizeof(int));
-  *i = 0;
-  infixeInverse(nouveau, tableau, i);
-  free(nouveau);
-  FILE *fichier_temp_s = fopen("data_s.txt", "w");
+  FILE *fichier_temp_s = fopen("temp/data_s.txt", "w");
   if (fichier_temp_s == NULL) {
     perror("ERREUR : impossible d'ouvrir le fichier temp_s");
     exit(1);
   }
-  for (int y = 0; y < 50; y++) {
-    fprintf(fichier_temp_s, "%d;%f;%f;%f\n", tableau[y].id, tableau[y].max, tableau[y].min, tableau[y].moy);
-  }
+  infixeInverse(nouveau,fichier_temp_s);
   fclose(fichier_temp_s);
 }
 int main(int argc, char *argv[]) {

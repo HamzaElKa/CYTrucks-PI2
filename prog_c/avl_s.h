@@ -9,6 +9,7 @@ typedef struct arbre
   float max;
   float min;
   float moy;
+  float dif;
   struct arbre *fg;
   struct arbre *fd;
   int eq;
@@ -20,6 +21,7 @@ int id;
 float max;
 float min;
 float moy;
+float dif;
 }trajetf;
 int max2(int a, int b);
 int max3(int a, int b, int c);
@@ -32,6 +34,6 @@ parbre rotationdroite(parbre a);
 parbre doublerotationgauche(parbre a);
 parbre doublerotationdroite(parbre a);
 parbre equilibrerAVL(parbre a);
-void infixeInverse(parbre a, trajetf* tableau, int* i);
+void infixeInverse(parbre a, FILE* fichier_temp_s);
 void traitement_s(char *fichier);
 #endif

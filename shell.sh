@@ -87,7 +87,7 @@ for arg in "$@"; do
    echo "Traitement d1 : "
    echo "Progrès: [####################] (0%)"
    start=$(date +%s)
-cut -d';' -f1,6 $fichier | sort -t';' -k2 | uniq | cut -d ';' -f2 | uniq -c | sort -nr | head -n10 | awk '{print $2"; "$1}' > ./temp/resultats_d1.csv
+cut -d';' -f1,6 $fichier | sort -t';' -k2 | uniq | cut -d ';' -f2 | uniq -c | sort -nr | head -n10 | awk '{print $2"; "$1}' > temp/resultats_d1.csv
 echo "Progrès: [####################] (33%)"
 gnuplot << EOF
 set datafile separator ';'
@@ -102,8 +102,8 @@ set xlabel 'Nom du Conducteur'
 set xtics nomirror rotate by -270
 set ytics nomirror rotate by 90
 set boxwidth 0.5
-set title "Option -d1 : Nom=f(Nbr trajets)" 
-plot 'temp/resultats_d1.csv' using 2:xtic(1) notitle 
+set title "Option -d1 " 
+plot 'temp/resultats_d1.csv' using 2:xtic(1) notitle lc rgb "blue"
 EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_d1.png images/histogramme_d1.png
@@ -131,8 +131,9 @@ set ylabel 'Nombre de trajets'
 set xlabel 'Nom du Conducteur'
 set xtics nomirror rotate by -270
 set ytics nomirror rotate by 90
+set title "Option -dr1 "
 set boxwidth 0.5
-plot 'temp/resultats_dr1.csv' using 2:xtic(1) notitle 
+plot 'temp/resultats_dr1.csv' using 2:xtic(1) notitle lc rgb "blue"
 EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_dr1.png images/histogramme_dr1.png
@@ -161,8 +162,9 @@ set ylabel 'Distance totale'
 set xlabel 'Nom du Conducteur'
 set xtics nomirror rotate by -270
 set ytics nomirror rotate by 90
+set title "Option -d2 "
 set boxwidth 0.5
-plot 'temp/resultats_d2.csv' using 2:xtic(1) notitle
+plot 'temp/resultats_d2.csv' using 2:xtic(1) notitle lc rgb "blue"
 EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_d2.png images/histogramme_d2.png
@@ -191,8 +193,9 @@ set ylabel 'Distance totale'
 set xlabel 'Nom du Conducteur'
 set xtics nomirror rotate by -270
 set ytics nomirror rotate by 90
+set title "Option -dr2 "
 set boxwidth 0.5
-plot 'temp/resultats_dr2.csv' using 2:xtic(1) notitle
+plot 'temp/resultats_dr2.csv' using 2:xtic(1) notitle lc rgb "blue"
 EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_dr2.png images/histogramme_dr2.png
@@ -218,8 +221,8 @@ set boxwidth 0.5 relative
 set yrange [0:*]
 set xlabel "ID Route"
 set ylabel "Distance"
-set title "Option -l : ID Route = f(Distance)"
-plot 'temp/resultats_l.txt' using 2:xticlabels(1) with boxes title "Nombre de trajets" 
+set title "Option -l "
+plot 'temp/resultats_l.txt' using 2:xticlabels(1) with boxes title "Distance" lc rgb "blue"
 EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
@@ -243,8 +246,8 @@ set boxwidth 0.5 relative
 set yrange [0:*]
 set xlabel "ID Route"
 set ylabel "Distance"
-set title "Option -rl : ID Route = f(Distance)"
-plot 'temp/resultats_rl.txt' using 2:xticlabels(1) with boxes title "Nombre de trajets" 
+set title "Option -rl "
+plot 'temp/resultats_rl.txt' using 2:xticlabels(1) with boxes title "Distance" lc rgb "blue"
 EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
@@ -283,7 +286,7 @@ echo "Progrès: [####################] (100%)"
 awk -F ";" '
   BEGIN {
     OFS=";"
-    printf "%d;%f;%f;%f\n", "Route ID", "Min Distance", "Max Distance", "Difference"
+    printf "%d;%f;%f;%f;%f\n", "Route ID", "Min Distance", "Moyenne", "Max Distance", "Difference"
   }
   function update_stats(route_id, distance) {
     if (distance < min_distance[route_id] || min_distance[route_id] == 0) {
@@ -292,6 +295,8 @@ awk -F ";" '
     if (distance > max_distance[route_id]) {
       max_distance[route_id] = distance
     }
+    sum_distance[route_id] = sum_distance[route_id] + distance
+    count_distance[route_id] = count_distance[route_id] + 1
   }
   NR > 1 {
     route_id = $1
@@ -301,17 +306,20 @@ awk -F ";" '
   END {
     for (key in min_distance) {
       difference = max_distance[key] - min_distance[key]
-      printf "%d;%f;%f;%f\n", key, min_distance[key], max_distance[key], difference
+      moyenne = sum_distance[key] / count_distance[key]
+      printf "%d;%f;%f;%f;%f\n", key, min_distance[key], moyenne, max_distance[key], difference
     }
-    
-  }' data_1.csv > temp/data_temp.txt 
-  gcc prog_c/avl_s.c -o myprog
-  ./myprog temp/data_temp.csv 
-  awk -W sprintf=num '{x++; printf("%d;%s\n", x, $1)}' temp/data_s.txt >temp/data_s_sorted.csv 
+  }' $fichier > temp/data_temp.csv
+  echo "Progrès: [####################] (33%)"
+  gcc -c prog_c/avl_s.c -o prog_c/avl_s.o
+  gcc prog_c/avl_s.c -c myprog
+  ./myprog temp/data_temp.csv
+  head -n50 temp/data_s.txt > temp/data_s_sort.cvs 
+  awk -W sprintf=num '{x++; printf("%d;%s\n", x, $1)}' temp/data_s_sort.cvs >temp/data_s_sorted.csv 
   echo "Progrès: [####################] (66%)"
   gnuplot << EOF
-set terminal png font "Arial,6"
-  set output "images/trai_s.png"
+set terminal png font "arial,10"
+  set output "images/s.png"
   set title "Option -s"
   set style data lines
   set style fill solid 0.5
@@ -320,7 +328,8 @@ set terminal png font "Arial,6"
   set xtic rotate by 45 right
   set xlabel "ID"
   set ylabel "Distance" rotate by -270
-  plot "temp/data_s_sorted.csv" using 1:3:5:xtic(2) with filledcurves below title "Test" lc rgb "blue", '' u 1:4 lc rgb "blue" title "Test"
+  set title "Option -s "
+  plot "temp/data_s_sorted.csv" using 1:3:5:xtic(2) with filledcurves below title "Distance Min/Max" lc rgb "blue", '' u 1:4 lc rgb "blue" title "Distance Moy"
 EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
