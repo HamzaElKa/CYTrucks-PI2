@@ -255,11 +255,78 @@ echo "Progrès: [####################] (100%)"
    "-t") 
    echo "Traitement t : 
    "
+   awk -F';' '{
+   if($2==1){
+   count2[$3]++;
+   if(!visited[$1, $3]){
+   count[$3]++;
+   }
+   visited[$1, $3]++;
+   }
+   if($3 != $4 && !visited[$1, $4]){
+   count[$4]++;
+   visited[$1, $4]++;
+   }
+   }
+   END {
+   for (i in count){
+   printf("%s;%d;%d\n", i, count[i], count2[i]);
+   }
+   }' $fichier > temp/data_t.txt
+   sort -n -r -t';' -k2 temp/data_t.txt | sort -t';' -k1 | head -n10 > temp/data_t_sorted
    ;;
    "-s") 
    echo "Traitement s : 
    "
-   ./mon_programme $fichier
+    echo "Progrès: [####################] (0%)"
+   start=$(date +%s)  
+awk -F ";" '
+  BEGIN {
+    OFS=";"
+    printf "%d;%f;%f;%f\n", "Route ID", "Min Distance", "Max Distance", "Difference"
+  }
+  function update_stats(route_id, distance) {
+    if (distance < min_distance[route_id] || min_distance[route_id] == 0) {
+      min_distance[route_id] = distance
+    }
+    if (distance > max_distance[route_id]) {
+      max_distance[route_id] = distance
+    }
+  }
+  NR > 1 {
+    route_id = $1
+    distance = $5
+    update_stats(route_id, distance)
+  }
+  END {
+    for (key in min_distance) {
+      difference = max_distance[key] - min_distance[key]
+      printf "%d;%f;%f;%f\n", key, min_distance[key], max_distance[key], difference
+    }
+    
+  }' data_1.csv > temp/data_temp.txt 
+  gcc prog_c/avl_s.c -o myprog
+  ./myprog temp/data_temp.csv 
+  awk -W sprintf=num '{x++; printf("%d;%s\n", x, $1)}' temp/data_s.txt >temp/data_s_sorted.csv 
+  echo "Progrès: [####################] (66%)"
+  gnuplot << EOF
+set terminal png font "Arial,6"
+  set output "images/trai_s.png"
+  set title "Option -s"
+  set style data lines
+  set style fill solid 0.5
+  set datafile separator ";"
+  set xrange [1:*]
+  set xtic rotate by 45 right
+  set xlabel "ID"
+  set ylabel "Distance" rotate by -270
+  plot "temp/data_s_sorted.csv" using 1:3:5:xtic(2) with filledcurves below title "Test" lc rgb "blue", '' u 1:4 lc rgb "blue" title "Test"
+EOF
+echo "Progrès: [####################] (100%)"
+    end=$(date +%s) 
+    time=$(( end - start ))
+    echo "Durée d'exec : ${time} secondes" 
+    echo " "
    ;;
     *)
     echo "Option non reconnue : $arg";;
