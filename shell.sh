@@ -312,7 +312,7 @@ awk -F ";" '
   }' $fichier > temp/data_temp.csv
   echo "Progrès: [####################] (33%)"
   gcc -c prog_c/avl_s.c -o prog_c/avl_s.o
-  gcc prog_c/avl_s.c -c myprog
+  gcc prog_c/avl_s.o -o myprog
   ./myprog temp/data_temp.csv
   head -n50 temp/data_s.txt > temp/data_s_sort.cvs 
   awk -W sprintf=num '{x++; printf("%d;%s\n", x, $1)}' temp/data_s_sort.cvs >temp/data_s_sorted.csv 
