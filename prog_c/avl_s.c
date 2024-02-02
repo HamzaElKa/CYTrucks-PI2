@@ -1,18 +1,27 @@
 #include "avl_s.h"
-
-
+// fonctions pour rechercher les valeurs minimales et maximales
 int max2(int a, int b) {
-    return (a > b) ? a : b;
-}
+    if(a>b){
+    return a;
+    }
+    else{
+    return b;
+}}
 int max3(int a, int b, int c) {
     return max2(max2(a,b),c);
 }
 int min2(int a, int b) {
-    return (a < b) ? a : b;
+    if(a<b){
+    return a;
+    }
+    else{
+    return b;
+}
 }
 int min3(int a, int b, int c) {
     return min2(min2(a,b),c);
 }
+// fonction de creation d'un noeud d'un arbre AVL
 parbre creerarbre(trajetf* d)
 {
     arbre *nouveau = malloc(sizeof(arbre));
@@ -31,6 +40,7 @@ parbre creerarbre(trajetf* d)
     nouveau->eq=0;
     return nouveau;
 }
+// fct d'insertion d'un noeud dans un AVL en fonction de la valeur de difference
 parbre insertionAVL(parbre a, trajetf* d, int *h)
 {
 if (d==NULL){
@@ -39,7 +49,7 @@ return a;
     if (a == NULL) {
         *h = 1;
         return creerarbre(d);
-    } else if (d->dif < a->dif) {
+    } else if (d->dif < a->dif) { 
         a->fg = insertionAVL(a->fg, d, h);
         *h = -*h;
     } else if (d->dif > a->dif) {
@@ -63,7 +73,8 @@ return a;
     }
     return a;
 }
-parbre rotationgauche(parbre a){
+// fcts qui sert à l'equilibrage du AVL
+parbre rotationgauche(parbre a){ // fct pour faire la rotation gauche
 if(a==NULL){
 return a;
 }
@@ -80,7 +91,7 @@ pivot->eq=min3(eq_a-2,eq_a+eq_p-2,eq_p-1);
 a=pivot;
 return a;
 }
-parbre rotationdroite(parbre a){
+parbre rotationdroite(parbre a){ // fct pour faire la rotation droite
 if(a==NULL){
 return a;
 }
@@ -97,7 +108,7 @@ pivot->eq=max3(eq_a+2,eq_a+eq_p+2,eq_p+1);
 a=pivot;
 return a;
 }
-
+// fct de double rotation gauche
 parbre doublerotationgauche(parbre a){
 if(a==NULL){
 return a;
@@ -105,7 +116,7 @@ return a;
 a->fd=rotationdroite(a->fd);
 return rotationgauche(a);
 }
-
+// fct de double rotation droite
 parbre doublerotationdroite(parbre a){
 if(a==NULL){
 return a;
@@ -113,6 +124,7 @@ return a;
 a->fg=rotationgauche(a->fg);
 return rotationdroite(a);
 }
+// fct pour equilibrer l'AVL
 parbre equilibrerAVL(parbre a){
 if(a==NULL){
 return a;
@@ -131,6 +143,7 @@ return doublerotationdroite(a);
 }}
 return a;
 }
+// fct pour faire le parcours inverse pour avoir l'ordre décroissant en mettant les valeurs dans un fichier
 void infixeInverse(parbre a, FILE* fichier_temp_s) 
 {
     if (a == NULL ) {
@@ -152,19 +165,19 @@ void traitement_s(char *fichier) {
     printf("Error: Failed to read the header line\n");
     exit(1);
   }
-
+ // Initialisation d'une structure trajetf pour stocker les données courantes
   trajetf *courant = malloc(sizeof(trajetf));
   int *h = malloc(sizeof(int));
   *h = 0;
   arbre *nouveau = NULL;
 
   while (fgets(ligne, ligne_taille_max, file) != NULL) {
-    sscanf(ligne, "%d;%f;%f;%f;%f", &courant->id,&courant->min,&courant->moy, &courant->max, &courant->dif);
+    sscanf(ligne, "%d;%f;%f;%f;%f", &courant->id,&courant->min,&courant->moy, &courant->max, &courant->dif);//stockage des valeurs dans la structure courant
     nouveau = insertionAVL(nouveau, courant, h);
     nouveau = equilibrerAVL(nouveau);
   }
   fclose(file);
-  FILE *fichier_temp_s = fopen("temp/data_s.txt", "w");
+  FILE *fichier_temp_s = fopen("temp/data_s.txt", "w");// faire un fichier temporaire pour inserer dedans les données triés
   if (fichier_temp_s == NULL) {
     perror("ERREUR : impossible d'ouvrir le fichier temp_s");
     exit(1);
@@ -172,6 +185,7 @@ void traitement_s(char *fichier) {
   infixeInverse(nouveau,fichier_temp_s);
   fclose(fichier_temp_s);
 }
+//fct main
 int main(int argc, char *argv[]) {
 char *chemin_csv = argv[1];
 traitement_s(chemin_csv);
