@@ -1,4 +1,5 @@
 #!/bin/bash
+# Afficher un message de bienvenue
 echo "
 Bienvenue à
            _________     __________
@@ -12,6 +13,7 @@ Bienvenue à
 		    CY-TRUCKS
 		2023/2024 CY-TECH
 " 
+#Verifier le nombre d'arguments
 if [ $# -lt 1 ] # si pas d'argument
 then
     echo "pas le nbr d'argument"
@@ -23,33 +25,38 @@ then
     echo "$1 n'est pas un fichier"
     exit 2
 fi
+# Vérifier s'il n'y a aucune option de traitement spécifiée
 if [ "$#" -eq 0 ]
 then 
     echo "Veuillez spécifier au moins un traitemnt."
     exit 1
 fi
+
 fichier="$1"
 dos_temp="temp"
 dos_images="images"
 exe_c="prog_c"
+# Créer le dossier temporaire s'il n'existe pas
 if [ ! -d "$dos_temp" ]; then
     mkdir "$dos_temp"
     echo "Dossier $dos_temp créé."
-else
+else #s'il existe, le vider
     echo "Le dossier $dos_temp existe déjà."
     rm -r "$dos_temp"/*
     echo "Le dossier $dos_temp a été vidé."
 fi
+# Créer le dossier images s'il n'existe pas
 if [ ! -d "$dos_images" ]; then
     mkdir "$dos_images"
     echo "Dossier $dos_images créé."
 else
     echo "Le dossier $dos_images existe déjà."
 fi
+# Compiler le programme C s'il n'existe pas
 if [ ! -e "exe_c" ]; then
     echo "L'executable C n'existe pas. Compilation en cours..."
-gcc prog_c/avl_s.c -o mon_programme
-
+  gcc -c prog_c/avl_s.c -o prog_c/avl_s.o
+  gcc prog_c/avl_s.o -o myprog
     if [ $? -eq 0 ]; then
         echo "Compilation réussie. "
     else 
@@ -58,10 +65,10 @@ gcc prog_c/avl_s.c -o mon_programme
 else 
     echo "L'executable C existe. "
 fi
-shift
+shift #se décaler vers la gauche (vers les traitements)
 option_h=0
 for arg in "$@"; do
-    if [ "$arg" = "-h" ]; then
+    if [ "$arg" = "-h" ]; then #affichage menu aide
         echo "Options de traitements : "
         echo "-d1 : Les 10 conducteurs avec le plus de trajets."
         echo "-dr1 : Les 10 conducteurs avec le moins de trajets."
@@ -76,17 +83,18 @@ for arg in "$@"; do
         break 
     fi
 done
-if [ "$option_h" -eq 1 ]
+if [ "$option_h" -eq 1 ] # si le menu aide affiché, quitter le programme
 then
     exit 0
 fi
-
+#----------------------------------------TRAITEMENTS---------------------------------------
 for arg in "$@"; do
    case "$arg" in
    "-d1") 
    echo "Traitement d1 : "
    echo "Progrès: [####################] (0%)"
    start=$(date +%s)
+   #Prendre les chamos ID et nom, trier en fct du nom, supprimer les lignes en double consécutives, extraire le 2eme champs de chaque ligne, compter le nombre d'occurence de chaque ligne, trier par ordre numérique décroissant, prendre les 10 premieres lignes puis les enregistrer dans un fichier temp
 cut -d';' -f1,6 $fichier | sort -t';' -k2 | uniq | cut -d ';' -f2 | uniq -c | sort -nr | head -n10 | awk '{print $2"; "$1}' > temp/resultats_d1.csv
 echo "Progrès: [####################] (33%)"
 gnuplot << EOF
@@ -106,18 +114,19 @@ set title "Option -d1 "
 plot 'temp/resultats_d1.csv' using 2:xtic(1) notitle lc rgb "blue"
 EOF
 echo "Progrès: [####################] (66%)"
-convert -rotate 90 temp/histogramme_d1.png images/histogramme_d1.png
+convert -rotate 90 temp/histogramme_d1.png images/histogramme_d1.png #inverser l'histogramme temporaire pour obtenir un histogramme horizontal
 echo "Progrès: [####################] (100%)"
 end=$(date +%s) 
 time=$(( end - start ))
-    echo "Durée d'exec : ${time} secondes" 
+    echo "Durée d'exec : ${time} secondes" #Affichage de temps
     echo " "
     ;;
     "-dr1")
     echo "Traitement dr1 : "
+    # DE MÊME QUE DR1 SAUF ON PREND LES 10 PETITES VALEURS
     echo "Progrès: [####################] (0%)"
     start=$(date +%s)
-cut -d';' -f1,6 $fichier | sort -t';' -k2 | uniq | cut -d ';' -f2 | uniq -c | sort -nr | tail -n11 | head -10 | awk '{print $2"; "$1}' > ./temp/resultats_dr1.csv
+cut -d';' -f1,6 $fichier | sort -t';' -k2 | uniq | cut -d ';' -f2 | uniq -c | sort -nr | tail -n11 | head -10 | awk '{print $2"; "$1}' > ./temp/resultats_dr1.csv # utiliser tail puis head pour ne pas avoir la ligne de DRIVER
 echo "Progrès: [####################] (33%)"
 gnuplot << EOF
 set datafile separator ';'
@@ -147,6 +156,7 @@ time=$(( end - start ))
 echo "Traitement d2 : "
 echo "Progrès: [####################] (0%)"
 start=$(date +%s)
+# creer un tableau où la clé est le nom du conducteur et la valeur est la somme des distances parcourues, stocker les resultats dans un 1er fichier temp, trier en ordre décroissant, prendre les 10 premieres valeurs et les stocker dans un 2eme fichier temp
 awk -F';' 'NR>1 {distance[$6] += $5+0} END {for (driver in distance) if (distance[driver] > 0) printf "%.3f %s\n", distance[driver], driver}' $fichier > temp/tmp_d2.csv
 sort -nr temp/tmp_d2.csv | head -10 | awk '{print $2"; "$1}' > ./temp/resultats_d2.csv 
 echo "Progrès: [####################] (33%)"
@@ -176,10 +186,11 @@ echo "Progrès: [####################] (100%)"
   ;;
   "-dr2")
 echo "Traitement dr2 : "
+#DE MÊME QUE D2 SAUF LES 10 DISTANCES PLUS PETITES TRAVERSÉES PAR UN CONDUCTEUR
 echo "Progrès: [####################] (0%)"
 start=$(date +%s)
 awk -F';' 'NR>1 {distance[$6] += $5+0} END {for (driver in distance) if (distance[driver] > 0) printf "%.3f %s\n", distance[driver], driver}' $fichier > temp/tmp_dr2.csv
-sort -nr temp/tmp_dr2.csv | tail -11 | head -10 | awk '{print $2"; "$1}' > ./temp/resultats_dr2.csv 
+sort -nr temp/tmp_dr2.csv | tail -10 | awk '{print $2"; "$1}' > ./temp/resultats_dr2.csv # tail au lieu de head
 echo "Progrès: [####################] (33%)"
 gnuplot << EOF 
 set datafile separator ';' 
@@ -209,6 +220,7 @@ time=$(( end - start ))
    echo "Traitement l : "
    echo "Progrès: [####################] (0%)"
    start=$(date +%s)  
+ # trier en fct des id, creer un tableau ou la clé est l'id et la valeur est la somme des distances, trier par orde numérique decroissant, prendre les 10 premieres lignes et puis trier en fct de l'id
 sort -n -t';' -k1 $fichier | cut -d';' -f1,5,6 > temp/tmp_l.csv
 echo "Progrès: [####################] (33%)"
 awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' temp/tmp_l.csv | sort -n -r -t' ' -k2 | head -n10 | sort -n -r -k1,1 > temp/resultats_l.txt
@@ -232,11 +244,12 @@ echo "Progrès: [####################] (100%)"
     ;;
     "-rl")
    echo "Traitement rl : "
+   # DE MÊME QUE L SAUF TAIL AU LIEU DE HEAD 
    echo "Progrès: [####################] (0%)"
    start=$(date +%s)  
 sort -n -t';' -k1 $fichier | cut -d';' -f1,5,6 > temp/tmp_rl.csv
 echo "Progrès: [####################] (33%)"
-awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' temp/tmp_rl.csv | sort -n -r -t' ' -k2 | tail -n11 | head -10 | sort -n -r -k1,1 > temp/resultats_rl.txt
+awk -F';' 'NR>1 { distances[$1] += $2+0 } END { for (id in distances) printf "%s %.2f\n", id, distances[id] }' temp/tmp_rl.csv | sort -n -r -t' ' -k2 | tail -n10 | sort -n -r -k1,1 > temp/resultats_rl.txt
 echo "Progrès: [####################] (66%)"
 gnuplot << EOF
 set terminal pngcairo enhanced font "arial,10" size 800,600 
@@ -258,31 +271,57 @@ echo "Progrès: [####################] (100%)"
    "-t") 
    echo "Traitement t : 
    "
+    echo "Progrès: [####################] (0%)"
+   start=$(date +%s) 
    awk -F';' '{
+   # Si le Step ID ($2) est égal à 1 (point de départ)
    if($2==1){
-   count2[$3]++;
-   if(!visited[$1, $3]){
-   count[$3]++;
+   count_depart_trajet[$3]++; # Incrémenter le compteur count_depart_trajet
+   if(!visited[$1, $3]){  # si la combinaison entre Id de la route et la ville de départ est vide 
+   count_visited[$3]++; # Incrémenter le compteur count_visited
    }
-   visited[$1, $3]++;
+   visited[$1, $3]++; 
    }
+   # si la ville de départ est differente que la ville darrivé et la combinaison entre Id de la route et la ville darrivé est vide 
    if($3 != $4 && !visited[$1, $4]){
-   count[$4]++;
+   count_visited[$4]++; # Incrémenter le compteur count_visited
    visited[$1, $4]++;
    }
    }
    END {
-   for (i in count){
-   printf("%s;%d;%d\n", i, count[i], count2[i]);
+   for (i in count_visited){ #print les resultat
+   printf("%s;%d;%d\n", i, count_visited[i], count_depart_trajet[i]);
    }
    }' $fichier > temp/data_t.txt
-   sort -n -r -t';' -k2 temp/data_t.txt | sort -t';' -k1 | head -n10 > temp/data_t_sorted
+   echo "Progrès: [####################] (33%)"
+   sort -n -r -t';' -k2 temp/data_t.txt | head -n10 | sort -t';' -k1 > temp/data_t_sorted.csv 
+   echo "Progrès: [####################] (66%)"
+   gnuplot << EOF
+set terminal pngcairo enhanced font "arial,10" size 800,600 
+set output 'images/histogramme_t.png'
+set datafile separator ";"
+set style data histogram
+set style fill solid
+set boxwidth 1.2 relative
+set yrange [0:*]
+set ylabel "Nombres de fois"
+set xlabel "Noms de villes" 
+set xtics nomirror rotate by 45 right 
+set title "Option -t "
+plot 'temp/data_t_sorted.csv' using 2:xtic(1) notitle lc rgb "blue", '' using 3:xtic(1) lc rgb "red" notitle
+EOF
+echo "Progrès: [####################] (100%)"
+    end=$(date +%s) 
+    time=$(( end - start ))
+    echo "Durée d'exec : ${time} secondes" 
+    echo " "
    ;;
    "-s") 
    echo "Traitement s : 
    "
     echo "Progrès: [####################] (0%)"
    start=$(date +%s)  
+#extraire l'id et la distance et appeler une fct update_stats pour mettre à jour les statistiques de distance pour une route en fct de la clé qui est l'id, puis calculer la difference entre la distance maximale est minimale, et calculer la moyenne. et stocker les resultats dans un fichier temp
 awk -F ";" '
   BEGIN {
     OFS=";"
@@ -311,11 +350,9 @@ awk -F ";" '
     }
   }' $fichier > temp/data_temp.csv
   echo "Progrès: [####################] (33%)"
-  gcc -c prog_c/avl_s.c -o prog_c/avl_s.o
-  gcc prog_c/avl_s.o -o myprog
-  ./myprog temp/data_temp.csv
-  head -n50 temp/data_s.txt > temp/data_s_sort.cvs 
-  awk -W sprintf=num '{x++; printf("%d;%s\n", x, $1)}' temp/data_s_sort.cvs >temp/data_s_sorted.csv 
+  ./myprog temp/data_temp.csv #executer le programme C pour trier les valeurs
+  head -n50 temp/data_s.txt > temp/data_s_sort.cvs #prendre les 50 premiers valeurs
+  awk -W sprintf=num '{x++; printf("%d;%s\n", x, $1)}' temp/data_s_sort.cvs >temp/data_s_sorted.csv #ajouter un numéro de ligne à chaque ligne du fichier pour pouvoir générer le gnuplot
   echo "Progrès: [####################] (66%)"
   gnuplot << EOF
 set terminal png font "arial,10"
@@ -338,8 +375,7 @@ echo "Progrès: [####################] (100%)"
     echo " "
    ;;
     *)
-    echo "Option non reconnue : $arg";;
-   *) 
-   echo "$arg existe pas ";;
+    # si l'un des paramétres n'est pas reconnu
+    echo "Option non reconnue : $arg"
    esac
 done
