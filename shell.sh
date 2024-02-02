@@ -55,8 +55,9 @@ fi
 # Compiler le programme C s'il n'existe pas
 if [ ! -e "exe_c" ]; then
     echo "L'executable C n'existe pas. Compilation en cours..."
-  gcc -c prog_c/avl_s.c -o prog_c/avl_s.o
-  gcc prog_c/avl_s.o -o myprog
+ cd prog_c
+ make
+ cd ..
     if [ $? -eq 0 ]; then
         echo "Compilation réussie. "
     else 
@@ -111,7 +112,7 @@ set xtics nomirror rotate by -270
 set ytics nomirror rotate by 90
 set boxwidth 0.5
 set title "Option -d1 " 
-plot 'temp/resultats_d1.csv' using 2:xtic(1) notitle lc rgb "blue"
+plot 'temp/resultats_d1.csv' using 2:xtic(1) notitle lc rgb "#64DC64"
 EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_d1.png images/histogramme_d1.png #inverser l'histogramme temporaire pour obtenir un histogramme horizontal
@@ -142,7 +143,7 @@ set xtics nomirror rotate by -270
 set ytics nomirror rotate by 90
 set title "Option -dr1 "
 set boxwidth 0.5
-plot 'temp/resultats_dr1.csv' using 2:xtic(1) notitle lc rgb "blue"
+plot 'temp/resultats_dr1.csv' using 2:xtic(1) notitle lc rgb "#64DC64"
 EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_dr1.png images/histogramme_dr1.png
@@ -174,7 +175,7 @@ set xtics nomirror rotate by -270
 set ytics nomirror rotate by 90
 set title "Option -d2 "
 set boxwidth 0.5
-plot 'temp/resultats_d2.csv' using 2:xtic(1) notitle lc rgb "blue"
+plot 'temp/resultats_d2.csv' using 2:xtic(1) notitle lc rgb "#64DC64"
 EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_d2.png images/histogramme_d2.png
@@ -206,7 +207,7 @@ set xtics nomirror rotate by -270
 set ytics nomirror rotate by 90
 set title "Option -dr2 "
 set boxwidth 0.5
-plot 'temp/resultats_dr2.csv' using 2:xtic(1) notitle lc rgb "blue"
+plot 'temp/resultats_dr2.csv' using 2:xtic(1) notitle lc rgb "#64DC64"
 EOF
 echo "Progrès: [####################] (66%)"
 convert -rotate 90 temp/histogramme_dr2.png images/histogramme_dr2.png
@@ -234,7 +235,7 @@ set yrange [0:*]
 set xlabel "ID Route"
 set ylabel "Distance"
 set title "Option -l "
-plot 'temp/resultats_l.txt' using 2:xticlabels(1) with boxes title "Distance" lc rgb "blue"
+plot 'temp/resultats_l.txt' using 2:xticlabels(1) with boxes title "Distance" lc rgb "#64DC64"
 EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
@@ -260,7 +261,7 @@ set yrange [0:*]
 set xlabel "ID Route"
 set ylabel "Distance"
 set title "Option -rl "
-plot 'temp/resultats_rl.txt' using 2:xticlabels(1) with boxes title "Distance" lc rgb "blue"
+plot 'temp/resultats_rl.txt' using 2:xticlabels(1) with boxes title "Distance" lc rgb "#64DC64"
 EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
@@ -308,7 +309,7 @@ set ylabel "Nombres de fois"
 set xlabel "Noms de villes" 
 set xtics nomirror rotate by 45 right 
 set title "Option -t "
-plot 'temp/data_t_sorted.csv' using 2:xtic(1) notitle lc rgb "blue", '' using 3:xtic(1) lc rgb "red" notitle
+plot 'temp/data_t_sorted.csv' using 2:xtic(1) notitle lc rgb "#64DC64", '' using 3:xtic(1) lc rgb "#99DC99" notitle
 EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
@@ -350,7 +351,7 @@ awk -F ";" '
     }
   }' $fichier > temp/data_temp.csv
   echo "Progrès: [####################] (33%)"
-  ./myprog temp/data_temp.csv #executer le programme C pour trier les valeurs
+  ./prog_c/myprog temp/data_temp.csv #executer le programme C pour trier les valeurs
   head -n50 temp/data_s.txt > temp/data_s_sort.cvs #prendre les 50 premiers valeurs
   awk -W sprintf=num '{x++; printf("%d;%s\n", x, $1)}' temp/data_s_sort.cvs >temp/data_s_sorted.csv #ajouter un numéro de ligne à chaque ligne du fichier pour pouvoir générer le gnuplot
   echo "Progrès: [####################] (66%)"
@@ -366,7 +367,7 @@ set terminal png font "arial,10"
   set xlabel "ID"
   set ylabel "Distance" rotate by -270
   set title "Option -s "
-  plot "temp/data_s_sorted.csv" using 1:3:5:xtic(2) with filledcurves below title "Distance Min/Max" lc rgb "blue", '' u 1:4 lc rgb "blue" title "Distance Moy"
+  plot "temp/data_s_sorted.csv" using 1:3:5:xtic(2) with filledcurves below title "Distance Min/Max" lc rgb "#64DC64", '' u 1:4 lc rgb "#99DC99" title "Distance Moy"
 EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 

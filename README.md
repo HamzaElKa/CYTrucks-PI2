@@ -34,7 +34,8 @@ Execution du programme :
 -	 Tapez bash shell.sh "nom_de_fichier.csv" "traitements souhaités"
 -	 Exemple : bash shell.sh data.csv -d1 -dr2 -l
 ### Commentaires 
--  Le traitement T avec les resultats correctes a été fait avec les Script Shell.
+-  Le traitement T a été fait uniquement avec le Script Shell.
+-  Nous avons essayé de le faire avec le C mais l'erreur de segmentation persiste.
 ### Auteurs
 -	Hamza EL KARCHOUNI
 -	Allan SOUGANI KONE
