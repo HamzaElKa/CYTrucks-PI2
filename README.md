@@ -33,6 +33,8 @@ Execution du programme :
 -	Accéder au répertoire ou se trouve le makefile et l’ensemble des codes utilisés pour le programme.
 -	 Tapez bash shell.sh "nom_de_fichier.csv" "traitements souhaités"
 -	 Exemple : bash shell.sh data.csv -d1 -dr2 -l
+### Commentaires 
+-  Le traitement T avec les resultats correctes a été fait avec les Script Shell.
 ### Auteurs
 -	Hamza EL KARCHOUNI
 -	Allan SOUGANI KONE
