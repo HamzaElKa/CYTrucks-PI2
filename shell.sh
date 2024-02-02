@@ -119,7 +119,7 @@ convert -rotate 90 temp/histogramme_d1.png images/histogramme_d1.png #inverser l
 echo "Progrès: [####################] (100%)"
 end=$(date +%s) 
 time=$(( end - start ))
-    echo "Durée d'exec : ${time} secondes" #Affichage de temps
+    echo "Durée d'exécution : ${time} secondes" #Affichage de temps
     echo " "
     ;;
     "-dr1")
@@ -150,7 +150,7 @@ convert -rotate 90 temp/histogramme_dr1.png images/histogramme_dr1.png
 echo "Progrès: [####################] (100%)"
 end=$(date +%s) 
 time=$(( end - start ))
-    echo "Durée d'exec : ${time} secondes" 
+    echo "Durée d'execution : ${time} secondes" 
     echo " "
     ;;
 "-d2")
@@ -182,7 +182,7 @@ convert -rotate 90 temp/histogramme_d2.png images/histogramme_d2.png
 end=$(date +%s) 
 time=$(( end - start ))
 echo "Progrès: [####################] (100%)"
-    echo "Durée d'exec : ${time} secondes" 
+    echo "Durée d'execution : ${time} secondes" 
     echo " "
   ;;
   "-dr2")
@@ -214,7 +214,7 @@ convert -rotate 90 temp/histogramme_dr2.png images/histogramme_dr2.png
 echo "Progrès: [####################] (100%)"
 end=$(date +%s) 
 time=$(( end - start ))
-    echo "Durée d'exec : ${time} secondes" 
+    echo "Durée d'execution : ${time} secondes" 
     echo " "
   ;;
    "-l")
@@ -240,7 +240,7 @@ EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
     time=$(( end - start ))
-    echo "Durée d'exec : ${time} secondes" 
+    echo "Durée d'execution : ${time} secondes" 
     echo " "
     ;;
     "-rl")
@@ -266,7 +266,7 @@ EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
     time=$(( end - start ))
-    echo "Durée d'exec : ${time} secondes" 
+    echo "Durée d'execution : ${time} secondes" 
     echo " "
     ;;
    "-t") 
@@ -314,7 +314,7 @@ EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
     time=$(( end - start ))
-    echo "Durée d'exec : ${time} secondes" 
+    echo "Durée d'execution : ${time} secondes" 
     echo " "
    ;;
    "-s") 
@@ -372,7 +372,7 @@ EOF
 echo "Progrès: [####################] (100%)"
     end=$(date +%s) 
     time=$(( end - start ))
-    echo "Durée d'exec : ${time} secondes" 
+    echo "Durée d'execution : ${time} secondes" 
     echo " "
    ;;
     *)
